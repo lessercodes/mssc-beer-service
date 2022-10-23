@@ -18,6 +18,8 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
+import javax.validation.Valid;
+
 @RestController
 @RequestMapping("/api/v1/beer")
 public class BeerController {
@@ -29,14 +31,17 @@ public class BeerController {
 
     @PostMapping
     @SneakyThrows
-    public ResponseEntity<UUID> saveNewBeer(@RequestBody BeerDto beerDto) {
+    public ResponseEntity<UUID> saveNewBeer(@Valid @RequestBody BeerDto beerDto) {
         val mockLocation = "/mockLocation/" + beerDto.getId();
         val mockUri = new URI(mockLocation);
         return ResponseEntity.created(mockUri).build();
     }
 
     @PutMapping("/{beerId}")
-    public ResponseEntity<Void> updateBeer(@PathVariable UUID beerId, @RequestBody BeerDto beerDto) {
+    public ResponseEntity<Void> updateBeer(
+            @PathVariable UUID beerId,
+            @Valid @RequestBody BeerDto beerDto
+    ) {
         return ResponseEntity.noContent().build();
     }
 
