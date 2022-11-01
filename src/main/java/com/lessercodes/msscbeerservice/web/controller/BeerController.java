@@ -1,5 +1,7 @@
 package com.lessercodes.msscbeerservice.web.controller;
 
+import com.lessercodes.msscbeerservice.service.BeerService;
+import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.val;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -22,19 +24,24 @@ import javax.validation.Valid;
 
 @RestController
 @RequestMapping("/api/v1/beer")
+@RequiredArgsConstructor
 public class BeerController {
+
+    private final BeerService beerService;
 
     @GetMapping("/{beerId}")
     public ResponseEntity<BeerDto> getBeer(@PathVariable UUID beerId) {
-        return ResponseEntity.ok(BeerDto.builder().build());
+        val beer = beerService.getById(beerId);
+        return ResponseEntity.ok(beer);
     }
 
     @PostMapping
     @SneakyThrows
     public ResponseEntity<UUID> saveNewBeer(@Valid @RequestBody BeerDto beerDto) {
-        val mockLocation = "/mockLocation/" + beerDto.getId();
-        val mockUri = new URI(mockLocation);
-        return ResponseEntity.created(mockUri).build();
+        val id = beerService.saveNewBeer(beerDto);
+        val location = String.format("/api/v1/beer/%s", id);
+        val newBeerUri = new URI(location);
+        return ResponseEntity.created(newBeerUri).build();
     }
 
     @PutMapping("/{beerId}")
@@ -42,11 +49,13 @@ public class BeerController {
             @PathVariable UUID beerId,
             @Valid @RequestBody BeerDto beerDto
     ) {
+        beerService.updateBeer(beerId, beerDto);
         return ResponseEntity.noContent().build();
     }
 
     @DeleteMapping("/{beerId}")
-    public ResponseEntity<Void> deleteBeer(@PathVariable UUID beerId) {
+    public ResponseEntity<Void> deleteBeer(@PathVariable UUID beerId) {;
+        beerService.deleteBeer(beerId);
         return ResponseEntity.noContent().build();
     }
 
